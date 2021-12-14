@@ -1,0 +1,84 @@
+<HTML>
+<BODY>
+<canvas id="beiser" width="500" height="400">
+</canvas>
+<script>
+    var canvas = document.getElementById("beiser");
+    var ctx = canvas.getContext("2d");
+    var point = 1;
+    function Line(ctx, x, y, x2, y2) {
+        var dy = Math.abs(y2-y);
+        var dx = Math.abs(x2-x);
+        var dmax = Math.max(dx, dy);
+        var dmin = Math.min(dx, dy);
+        var xdir = 1;
+        if (x2<x) xdir = -1;
+        var ydir = 1;
+        if (y2<y) ydir = -1;
+        var eps = 0;
+        var s = 1;
+        var k=2*dmin;
+        if (dy<=dx) {
+            var y = y;
+            for (var x=x; x*xdir<=x2*xdir; x+=xdir) {
+                ctx.fillRect(x*s, y*s, 1*s, 1*s);
+                eps = eps+k;
+                if (eps>dmax) {
+                    y+=ydir;
+                    eps = eps - 2*dmax;
+                }
+            }
+        } else {
+            var x = x;
+            for (var y=y; y*ydir<=y2*ydir; y+=ydir) {
+                ctx.fillRect(x*s, y*s, 1*s, 1*s);
+                eps = eps+k;
+                if (eps>dmax) {
+                    x+=xdir;
+                    eps = eps - 2*dmax;
+                }
+            }
+        }
+    }
+    function beiser(x, y, x2, y2, x3, y3){
+        if((Math.abs((y3 - y) * x2 - (x3 - x) * y2 + (x3 * y - x * y3)) / (Math.sqrt((y3 - y) * (y3 - y) + (x3 - x) * (x3 - x)))) > 1){
+            var xx= 0.5*x + 0.5*x2;
+            var yy= 0.5*y + 0.5*y2;
+            var xx1= 0.5*x2 + 0.5*x3;
+            var yy4= 0.5*y2 + 0.5*y3;
+            var xx2= 0.5*xx + 0.5*xx1;
+            var yy2= 0.5*yy + 0.5*yy4;
+            beiser(x, y, xx, yy, xx2, yy2);
+            beiser(xx2, yy2, xx1, yy4, x3, y3);
+        } else{
+            Line(ctx, x, y, x3, y3);
+            return;
+        }
+    }
+    canvas.addEventListener("click", function(event){
+        if (point == 3){
+            point = 1;
+            x3 = event.offsetX;
+            y3 = event.offsetY;
+            ctx.fillRect(x3, y3, 1, 1);
+            beiser(x, y, x2, y2, x3, y3);
+            return;
+        }
+        if (point == 2){
+            point = 3;
+            x2 = event.offsetX;
+            y2 = event.offsetY;
+            ctx.fillRect(x2, y2, 1, 1);
+            return;
+        }
+        if (point == 1){
+            point = 2;
+            x = event.offsetX;
+            y = event.offsetY;
+            ctx.fillRect(x, y, 1, 1);
+            return;
+        }
+    });
+</script>
+</BODY>
+</HTML>
